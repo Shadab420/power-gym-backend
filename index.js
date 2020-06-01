@@ -74,4 +74,37 @@ app.post('/addTraining', (req, res) => {
     });
 })
 
+/**
+ * api : update a training
+ */
+app.put('/trainings/:id', (req, res) => {
+
+    const updatedTraining = req.body
+    
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("trainings");
+
+        // perform actions on the collection object
+        collection.findOneAndUpdate(
+            { _id: new ObjectID(req.params.id)}, {$set: {...updatedTraining}}, {
+            returnOriginal: false, 
+            upsert: true
+        },
+            
+            (err, documents) => {
+                if(err) {
+                    console.log(err);
+                    res.status(500).send({message: err.message});
+                }
+                else{
+                    res.status(200).send(documents.value);
+                } 
+            
+        })
+        client.close();
+    });
+  })
+
 app.listen(port, () => console.log(`listening at http://localhost:${port}`))

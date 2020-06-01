@@ -23,6 +23,31 @@ const dbName = "powerxGym";
 //Training apis
 
 /**
+ * api : Get all trainings
+ */
+
+ app.get('/trainings', (req, res) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("trainings");
+
+        // perform actions on the collection object
+        collection.find().toArray((err, documents) => {
+           if(err) {
+               console.log(err);
+               res.status(500).send({message: err.message});
+           }
+           else{
+               res.status(200).send(documents);
+           } 
+            
+        })
+        client.close();
+    });
+ })
+
+/**
  * api : Add a training
  */
 app.post('/addTraining', (req, res) => {

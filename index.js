@@ -50,7 +50,7 @@ const dbName = "powerxGym";
 /**
  * api : Add a training
  */
-app.post('/addTraining', (req, res) => {
+app.post('/trainings', (req, res) => {
 
     const training = req.body;
 

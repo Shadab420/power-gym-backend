@@ -47,6 +47,33 @@ const dbName = "powerxGym";
     });
  })
 
+
+ /**
+ * api : Get a training by id
+ */
+
+app.get('/trainings/:id', (req, res) => {
+
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("trainings");
+
+        // perform actions on the collection object
+        collection.findOne({ _id: new ObjectID(req.params.id) }, (err, documents) => {
+            if(err) {
+                console.log(err);
+                res.status(500).send({message: err.message});
+            }
+            else{
+                res.status(200).send(documents);
+            } 
+             
+         })
+        client.close();
+    });
+ })
+
 /**
  * api : Add a training
  */
@@ -103,6 +130,31 @@ app.put('/trainings/:id', (req, res) => {
                 } 
             
         })
+        client.close();
+    });
+  })
+
+
+/**
+ * api : Delete a training
+ */
+app.delete('/trainings/:id', (req, res) => {
+
+    const updatedTraining = req.body
+    
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("trainings");
+
+        // perform actions on the collection object
+        
+        try {
+            collection.deleteOne( { _id: new ObjectID(req.params.id) } );
+            res.status(200).send("Deleted!");
+         } catch (e) {
+            res.status(500).send({message: err.message});
+         }
         client.close();
     });
   })

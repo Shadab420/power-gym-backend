@@ -299,7 +299,7 @@ app.delete('/classes/:id', (req, res) => {
         client.close();
     });
   })
-  
+
 
 //Pricing plan apis
 
@@ -439,5 +439,95 @@ app.delete('/classes/:id', (req, res) => {
         client.close();
     });
   })
+
+
+  //Membership apis
+
+/**
+ * api : Add a member
+ */
+app.post('/members', (req, res) => {
+
+    const member = req.body;
+
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("members");
+
+        // perform actions on the collection object
+        collection.insertOne(member, (err, documents) => {
+           if(err) {
+               console.log(err);
+               res.status(500).send({message: err.message});
+           }
+           else{
+               res.status(200).send(documents.ops[0]);
+           } 
+            
+        })
+        client.close();
+    });
+})
+
+/**
+ * api : update a member info
+ */
+app.put('/members/:id', (req, res) => {
+
+    const updatedMember = req.body
+    
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("members");
+
+        // perform actions on the collection object
+        collection.findOneAndUpdate(
+            { _id: new ObjectID(req.params.id)}, {$set: {...updatedMember}}, {
+            returnOriginal: false, 
+            upsert: true
+        },
+            
+            (err, documents) => {
+                if(err) {
+                    console.log(err);
+                    res.status(500).send({message: err.message});
+                }
+                else{
+                    res.status(200).send(documents.value);
+                } 
+            
+        })
+        client.close();
+    });
+  })
+
+  /**
+ * api : Get a member by id
+ */
+
+app.get('/members/:id', (req, res) => {
+
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("members");
+
+        // perform actions on the collection object
+        collection.findOne({ _id: new ObjectID(req.params.id) }, (err, documents) => {
+            if(err) {
+                console.log(err);
+                res.status(500).send({message: err.message});
+            }
+            else{
+                res.status(200).send(documents);
+            } 
+             
+         })
+        client.close();
+    });
+ })
+
 
 app.listen(port, () => console.log(`listening at http://localhost:${port}`))

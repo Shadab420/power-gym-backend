@@ -299,6 +299,145 @@ app.delete('/classes/:id', (req, res) => {
         client.close();
     });
   })
+  
 
+//Pricing plan apis
+
+/**
+ * api : Get all pricing plan
+ */
+
+app.get('/pricings', (req, res) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("pricings");
+
+        // perform actions on the collection object
+        collection.find().toArray((err, documents) => {
+           if(err) {
+               console.log(err);
+               res.status(500).send({message: err.message});
+           }
+           else{
+               res.status(200).send(documents);
+           } 
+            
+        })
+        client.close();
+    });
+ })
+
+
+ /**
+ * api : Get a pricing by id
+ */
+
+app.get('/pricings/:id', (req, res) => {
+
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("pricings");
+
+        // perform actions on the collection object
+        collection.findOne({ _id: new ObjectID(req.params.id) }, (err, documents) => {
+            if(err) {
+                console.log(err);
+                res.status(500).send({message: err.message});
+            }
+            else{
+                res.status(200).send(documents);
+            } 
+             
+         })
+        client.close();
+    });
+ })
+
+/**
+ * api : Add a pricing
+ */
+app.post('/pricings', (req, res) => {
+
+    const training = req.body;
+
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("pricings");
+
+        // perform actions on the collection object
+        collection.insertOne(training, (err, documents) => {
+           if(err) {
+               console.log(err);
+               res.status(500).send({message: err.message});
+           }
+           else{
+               res.status(200).send(documents.ops[0]);
+           } 
+            
+        })
+        client.close();
+    });
+})
+
+/**
+ * api : update a pricing
+ */
+app.put('/pricings/:id', (req, res) => {
+
+    const updatedTraining = req.body
+    
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("pricings");
+
+        // perform actions on the collection object
+        collection.findOneAndUpdate(
+            { _id: new ObjectID(req.params.id)}, {$set: {...updatedTraining}}, {
+            returnOriginal: false, 
+            upsert: true
+        },
+            
+            (err, documents) => {
+                if(err) {
+                    console.log(err);
+                    res.status(500).send({message: err.message});
+                }
+                else{
+                    res.status(200).send(documents.value);
+                } 
+            
+        })
+        client.close();
+    });
+  })
+
+
+/**
+ * api : Delete a pricing
+ */
+app.delete('/classes/:id', (req, res) => {
+
+    const updatedTraining = req.body
+    
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+
+    client.connect(err => {
+        const collection = client.db(dbName).collection("pricings");
+
+        // perform actions on the collection object
+        
+        try {
+            collection.deleteOne( { _id: new ObjectID(req.params.id) } );
+            res.status(200).send("Deleted!");
+         } catch (e) {
+            res.status(500).send({message: err.message});
+         }
+        client.close();
+    });
+  })
 
 app.listen(port, () => console.log(`listening at http://localhost:${port}`))
